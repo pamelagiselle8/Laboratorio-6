@@ -15,7 +15,7 @@ public class Lab6P2_PamelaRamirez_12141141 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        new Principal().setVisible(true);
     }
     
 }
