@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 /**
  *
@@ -128,7 +130,7 @@ public class Principal extends javax.swing.JFrame {
         jPanel7 = new javax.swing.JPanel();
         cboPlanetas = new javax.swing.JComboBox<>();
         jScrollPane5 = new javax.swing.JScrollPane();
-        listPlanetas = new javax.swing.JList<>();
+        listAliens = new javax.swing.JList<>();
         btnArbol = new javax.swing.JButton();
         jScrollPane6 = new javax.swing.JScrollPane();
         arbolito = new javax.swing.JTree();
@@ -734,10 +736,15 @@ public class Principal extends javax.swing.JFrame {
 
         cboPlanetas.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        listPlanetas.setModel(new DefaultListModel());
-        jScrollPane5.setViewportView(listPlanetas);
+        listAliens.setModel(new DefaultListModel());
+        jScrollPane5.setViewportView(listAliens);
 
         btnArbol.setText("->");
+        btnArbol.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnArbolActionPerformed(evt);
+            }
+        });
 
         jScrollPane6.setViewportView(arbolito);
 
@@ -964,10 +971,14 @@ public class Principal extends javax.swing.JFrame {
         DefaultComboBoxModel cboPlanetaFavModel = new DefaultComboBoxModel();
         DefaultListModel listPlaModel = new DefaultListModel();
         DefaultListModel listPlaExpModel = new DefaultListModel();
+        DefaultListModel listAliensModel = new DefaultListModel();
         for (Planeta p : planetas) {
             cboPlanetaModel.addElement(p);
             cboPlanetaFavModel.addElement(p);
             listPlaModel.addElement(p);
+            for (Alien a : p.getAliensHabitando()) {
+                listAliensModel.addElement(a);
+            }
         }
         
         if (tab.getSelectedIndex() == 0) {
@@ -995,7 +1006,7 @@ public class Principal extends javax.swing.JFrame {
             cboPlaAb.setModel(cboPlanetaModel);
         }
         else{
-            
+            listAliens.setModel(listAliensModel);
         }
     }//GEN-LAST:event_tabStateChanged
 
@@ -1081,6 +1092,75 @@ public class Principal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnAgregarPlaConActionPerformed
 
+    private void btnArbolActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnArbolActionPerformed
+        if (listAliens.getSelectedIndex() >= 0) {
+            // Modelos
+            DefaultTreeModel arbolModelo = (DefaultTreeModel) arbolito.getModel();
+            DefaultMutableTreeNode raiz = (DefaultMutableTreeNode) arbolModelo.getRoot();
+            DefaultListModel listAliensModelo = (DefaultListModel) listAliens.getModel();
+            
+            Alien alienSeleccionado = (Alien) listAliensModelo.getElementAt(listAliens.getSelectedIndex());
+            
+            // Nodos
+            DefaultMutableTreeNode nodoAlien = new DefaultMutableTreeNode(alienSeleccionado);
+            DefaultMutableTreeNode nodoPlaneta = new DefaultMutableTreeNode();
+            DefaultMutableTreeNode nodoTipo = new DefaultMutableTreeNode();
+            
+            boolean existePlaneta = false;
+            boolean existeTipo = false;
+            
+            for (Planeta p : planetas) {
+                // Buscar el planeta que contiene al alien
+                if (p.getAliensHabitando().contains(alienSeleccionado)) {
+                    nodoPlaneta = new DefaultMutableTreeNode(p);
+                    if (raiz.getChildCount() >= 0) {
+                        for (int i = 0; i < raiz.getChildCount(); i++) {
+                            DefaultMutableTreeNode planeta = (DefaultMutableTreeNode)raiz.getChildAt(i);
+                            // Ver si existe un nodo de ese planeta
+                            if (planeta.toString().equals(p)) {
+                                existePlaneta = true;
+                                if (planeta.getChildCount() >= 0) {
+                                    for (int j = 0; j < planeta.getChildCount(); j++) {
+                                        DefaultMutableTreeNode tipo = (DefaultMutableTreeNode)planeta.getChildAt(i);
+                                        // Ver si existe un nodo del tipo de alien
+                                        if (tipo.toString().equals(instanciaAlien(alienSeleccionado))) {
+                                            tipo.add(nodoAlien);
+                                            existeTipo = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (!existePlaneta && !existeTipo) {
+                raiz.add(nodoPlaneta);
+                nodoTipo = new DefaultMutableTreeNode(instanciaAlien(alienSeleccionado));
+            }
+            else if (existePlaneta && !existeTipo) {
+                nodoTipo = new DefaultMutableTreeNode(instanciaAlien(alienSeleccionado));
+            }
+            nodoPlaneta.add(nodoTipo);
+            nodoTipo.add(nodoAlien);
+            arbolModelo.reload();
+        }
+    }//GEN-LAST:event_btnArbolActionPerformed
+    
+    public String instanciaAlien(Alien a){
+        if (a instanceof Explorador) {
+            return "Explorador";
+        }
+        else if (a instanceof Cazador) {
+            return "Cazador";
+        }
+        else if (a instanceof Conquistador) {
+            return "Conquistador";
+        }
+        else{
+            return "Abduzcan";
+        }
+    }
     /**
      * @param args the command line arguments
      */
@@ -1202,11 +1282,11 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JSpinner jSpinner11;
     private javax.swing.JSpinner jSpinner5;
     private javax.swing.JTextField jTextField5;
+    private javax.swing.JList<String> listAliens;
     private javax.swing.JList<String> listPla;
     private javax.swing.JList<String> listPla2;
     private javax.swing.JList<String> listPlaCon;
     private javax.swing.JList<String> listPlaExp;
-    private javax.swing.JList<String> listPlanetas;
     private javax.swing.JRadioButton rbtnAgua;
     private javax.swing.JRadioButton rbtnAmAb;
     private javax.swing.JRadioButton rbtnAmCaz;
