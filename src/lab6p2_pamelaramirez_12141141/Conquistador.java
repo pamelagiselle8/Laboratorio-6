@@ -14,8 +14,9 @@ import java.util.ArrayList;
 public class Conquistador extends Alien {
     private ArrayList <Planeta> planetasConquistados = new ArrayList();
 
-    public Conquistador(String nombre, Raza raza, int edad, boolean amenza) {
+    public Conquistador(String nombre, Raza raza, int edad, boolean amenza, ArrayList<Planeta> planetasConquistados) {
         super(nombre, raza, edad, amenza);
+        this.planetasConquistados = planetasConquistados;
     }
 
     public ArrayList<Planeta> getPlanetasConquistados() {

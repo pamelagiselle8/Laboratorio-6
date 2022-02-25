@@ -13,8 +13,9 @@ public class Raza {
     private Planeta primordial;
     private String nombre;
 
-    public Raza(String nombre) {
+    public Raza(String nombre, Planeta primordial) {
         this.nombre = nombre;
+        this.primordial = primordial;
     }
 
     public Planeta getPrimordial() {

@@ -15,8 +15,10 @@ public class Explorador extends Alien {
     private ArrayList <Planeta> planetasExplorados = new ArrayList();
     private Planeta planetaFavorito;
 
-    public Explorador(String nombre, Raza raza, int edad, boolean amenza) {
+    public Explorador(String nombre, Raza raza, int edad, boolean amenza, ArrayList<Planeta> planetasExplorados, Planeta planetaFavorito) {
         super(nombre, raza, edad, amenza);
+        this.planetasExplorados = planetasExplorados;
+        this.planetaFavorito = planetaFavorito;
     }
 
     public ArrayList<Planeta> getPlanetasExplorados() {
