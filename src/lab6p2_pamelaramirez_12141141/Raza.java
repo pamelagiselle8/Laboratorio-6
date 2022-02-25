@@ -35,7 +35,7 @@ public class Raza {
 
     @Override
     public String toString() {
-        return "Raza{" + "nombre=" + nombre + '}';
+        return nombre;
     }
     
     

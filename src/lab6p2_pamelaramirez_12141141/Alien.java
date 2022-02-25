@@ -14,7 +14,6 @@ public class Alien {
     protected Raza raza;
     protected int edad;
     protected boolean amenza;
-    protected Planeta planetaHabitado;
 
     public Alien(String nombre, Raza raza, int edad, boolean amenza) {
         this.nombre = nombre;
@@ -55,16 +54,8 @@ public class Alien {
         this.amenza = amenza;
     }
 
-    public Planeta getPlanetaHabitado() {
-        return planetaHabitado;
-    }
-
-    public void setPlanetaHabitado(Planeta planetaHabitado) {
-        this.planetaHabitado = planetaHabitado;
-    }
-
     @Override
     public String toString() {
-        return "Alien{" + "nombre=" + nombre + ", raza=" + raza + ", edad=" + edad + ", amenza=" + amenza + ", planetaHabitado=" + planetaHabitado + '}';
+        return "Alien{" + "nombre=" + nombre + ", raza=" + raza + ", edad=" + edad + ", amenza=" + amenza;
     }
 }

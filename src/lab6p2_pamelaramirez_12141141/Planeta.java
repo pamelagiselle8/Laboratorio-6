@@ -64,6 +64,11 @@ public class Planeta {
     public void setAliensHabitando(ArrayList<Alien> aliensHabitando) {
         this.aliensHabitando = aliensHabitando;
     }
+
+    @Override
+    public String toString() {
+        return nombre;
+    }
     
     
 }
