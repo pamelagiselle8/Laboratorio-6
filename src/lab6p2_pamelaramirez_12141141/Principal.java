@@ -58,6 +58,10 @@ public class Principal extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        pop = new javax.swing.JPopupMenu();
+        popEdit = new javax.swing.JMenuItem();
+        popElim = new javax.swing.JMenuItem();
+        popImpr = new javax.swing.JMenuItem();
         jPanel1 = new javax.swing.JPanel();
         tab = new javax.swing.JTabbedPane();
         jPanel2 = new javax.swing.JPanel();
@@ -168,6 +172,30 @@ public class Principal extends javax.swing.JFrame {
         jRadioButton3 = new javax.swing.JRadioButton();
         jButton11 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+
+        popEdit.setText("Editar");
+        popEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                popEditActionPerformed(evt);
+            }
+        });
+        pop.add(popEdit);
+
+        popElim.setText("Eliminar");
+        popElim.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                popElimActionPerformed(evt);
+            }
+        });
+        pop.add(popElim);
+
+        popImpr.setText("Imprimir");
+        popImpr.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                popImprActionPerformed(evt);
+            }
+        });
+        pop.add(popImpr);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -767,6 +795,7 @@ public class Principal extends javax.swing.JFrame {
 
         javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("Planetas");
         arbolito.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        arbolito.setComponentPopupMenu(pop);
         jScrollPane6.setViewportView(arbolito);
 
         jLabel14.setText("Nombre");
@@ -1167,7 +1196,7 @@ public class Principal extends javax.swing.JFrame {
             
             boolean existePlaneta = false;
             boolean existeTipo = false;
-            int pos = 0;
+            boolean existeAlien = false;
             
             for (Planeta p : planetas) {
                 // Buscar el planeta que contiene al alien
@@ -1178,14 +1207,19 @@ public class Principal extends javax.swing.JFrame {
                             // Ver si existe un nodo de ese planeta
                             if (nodoPlaneta.toString().equals(raiz.getChildAt(i).toString())) {
                                 existePlaneta = true;
+                                nodoPlaneta = (DefaultMutableTreeNode)raiz.getChildAt(i);
                                 if (nodoPlaneta.getChildCount() >= 0) {
                                     for (int j = 0; j < nodoPlaneta.getChildCount(); j++) {
                                         // Ver si existe un nodo del tipo de alien
                                         if (nodoTipo.toString().equals(nodoPlaneta.getChildAt(j).toString())) {
                                             nodoTipo = (DefaultMutableTreeNode)nodoPlaneta.getChildAt(j);
-                                            nodoTipo.add(nodoAlien);
                                             existeTipo = true;
-                                            break;
+                                            // Ver si existe el alien
+                                            for (int k = 0; k < nodoTipo.getChildCount(); k++) {
+                                                if (nodoTipo.getChildAt(k).toString().equals(("Alien " + alienSeleccionado.nombre))) {
+                                                    existeAlien = true;
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -1201,7 +1235,9 @@ public class Principal extends javax.swing.JFrame {
                 nodoTipo = new DefaultMutableTreeNode(instanciaAlien(alienSeleccionado));
                 nodoPlaneta.add(nodoTipo);
             }
-            nodoTipo.add(nodoAlien);
+            if (!existeAlien) {
+                nodoTipo.add(nodoAlien);
+            }
             arbolModelo.reload();
         }
     }//GEN-LAST:event_btnArbolActionPerformed
@@ -1214,6 +1250,82 @@ public class Principal extends javax.swing.JFrame {
         }
         listAliens.setModel(listAliensModel);
     }//GEN-LAST:event_cboPlanetasActionPerformed
+
+    private void popEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_popEditActionPerformed
+        try{
+            Object a = arbolito.getSelectionPath().getLastPathComponent();
+            DefaultMutableTreeNode nodoSeleccionado = (DefaultMutableTreeNode) a;
+            if (nodoSeleccionado.getUserObject() instanceof Alien) {
+                Alien alien = (Alien) nodoSeleccionado.getUserObject();
+                
+            } 
+        }
+        catch (Exception e){
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un alien.", "Error", 2);
+        }
+    }//GEN-LAST:event_popEditActionPerformed
+
+    private void popElimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_popElimActionPerformed
+        try{
+            Object a = arbolito.getSelectionPath().getLastPathComponent();
+            DefaultMutableTreeNode nodoSeleccionado = (DefaultMutableTreeNode) a;
+            if (nodoSeleccionado.getUserObject() instanceof Alien) {
+                Alien alien = (Alien) nodoSeleccionado.getUserObject();
+                for (Planeta p : planetas) {
+                    for (Alien al : p.getAliensHabitando()) {
+                        if (al.equals(alien)) {
+                            p.getAliensHabitando().remove(alien);
+                            DefaultListModel listAliensModel = new DefaultListModel();
+                            Planeta planetaSeleccionado = (Planeta) cboPlanetas.getSelectedItem();
+                            for (Alien m : planetaSeleccionado.getAliensHabitando()) {
+                                listAliensModel.addElement(m);
+                            }
+                            listAliens.setModel(listAliensModel);
+                            break;
+                        }
+                    }
+                }
+                
+            } 
+        }
+        catch (Exception e){
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un alien.", "Error", 2);
+        }
+    }//GEN-LAST:event_popElimActionPerformed
+
+    private void popImprActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_popImprActionPerformed
+        try{
+            Object a = arbolito.getSelectionPath().getLastPathComponent();
+            DefaultMutableTreeNode nodoSeleccionado = (DefaultMutableTreeNode) a;
+            if (nodoSeleccionado.getUserObject() instanceof Alien) {
+                Alien alien = (Alien) nodoSeleccionado.getUserObject();
+                String amenazaAlien = "\n-No es una amenaza \n";
+                if (alien.amenza) {
+                    amenazaAlien = "\n-Es una amenaza \n";
+                }
+                System.out.print(" Alien " + alien.getNombre()
+                        + ":\n-Raza: " + alien.raza
+                        + "\n-Edad: " + alien.edad
+                        + amenazaAlien);
+                if (alien instanceof Explorador) {
+                    System.out.println("-Planetas explorados: " + ((Explorador) alien).getPlanetasExplorados()
+                        + "\n-Planeta favorito: " + ((Explorador) alien).getPlanetaFavorito());
+                }
+                else if (alien instanceof Conquistador) {
+                    System.out.println("-Planetas conquistados: " + ((Conquistador) alien).getPlanetasConquistados());
+                }
+                else if (alien instanceof Cazador) {
+                    System.out.println("-Humanos atrapados para experimentos: " + ((Cazador) alien).getHumanos());
+                }
+                else if (alien instanceof Abduzcan) {
+                    System.out.println("-Número de animales abducidos: " + ((Abduzcan) alien).getAnimales());
+                }
+            } 
+        }
+        catch (Exception e){
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un alien.", "Error", 2);
+        }
+    }//GEN-LAST:event_popImprActionPerformed
     
     public String instanciaAlien(Alien a){
         if (a instanceof Explorador) {
@@ -1355,6 +1467,10 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JList<String> listPla2;
     private javax.swing.JList<String> listPlaCon;
     private javax.swing.JList<String> listPlaExp;
+    private javax.swing.JPopupMenu pop;
+    private javax.swing.JMenuItem popEdit;
+    private javax.swing.JMenuItem popElim;
+    private javax.swing.JMenuItem popImpr;
     private javax.swing.JRadioButton rbtnAgua;
     private javax.swing.JRadioButton rbtnAmAb;
     private javax.swing.JRadioButton rbtnAmCaz;
