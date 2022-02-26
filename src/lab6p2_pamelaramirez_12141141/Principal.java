@@ -11,6 +11,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
 
 /**
  *
@@ -735,6 +736,11 @@ public class Principal extends javax.swing.JFrame {
         tab.addTab("Abduzcan", jPanel6);
 
         cboPlanetas.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cboPlanetas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cboPlanetasActionPerformed(evt);
+            }
+        });
 
         listAliens.setModel(new DefaultListModel());
         jScrollPane5.setViewportView(listAliens);
@@ -746,6 +752,8 @@ public class Principal extends javax.swing.JFrame {
             }
         });
 
+        javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("Planetas");
+        arbolito.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
         jScrollPane6.setViewportView(arbolito);
 
         jLabel14.setText("Nombre");
@@ -971,14 +979,10 @@ public class Principal extends javax.swing.JFrame {
         DefaultComboBoxModel cboPlanetaFavModel = new DefaultComboBoxModel();
         DefaultListModel listPlaModel = new DefaultListModel();
         DefaultListModel listPlaExpModel = new DefaultListModel();
-        DefaultListModel listAliensModel = new DefaultListModel();
         for (Planeta p : planetas) {
             cboPlanetaModel.addElement(p);
             cboPlanetaFavModel.addElement(p);
             listPlaModel.addElement(p);
-            for (Alien a : p.getAliensHabitando()) {
-                listAliensModel.addElement(a);
-            }
         }
         
         if (tab.getSelectedIndex() == 0) {
@@ -1006,7 +1010,7 @@ public class Principal extends javax.swing.JFrame {
             cboPlaAb.setModel(cboPlanetaModel);
         }
         else{
-            listAliens.setModel(listAliensModel);
+            cboPlanetas.setModel(cboPlanetaModel);
         }
     }//GEN-LAST:event_tabStateChanged
 
@@ -1099,15 +1103,18 @@ public class Principal extends javax.swing.JFrame {
             DefaultMutableTreeNode raiz = (DefaultMutableTreeNode) arbolModelo.getRoot();
             DefaultListModel listAliensModelo = (DefaultListModel) listAliens.getModel();
             
+            // Alien seleccionado
             Alien alienSeleccionado = (Alien) listAliensModelo.getElementAt(listAliens.getSelectedIndex());
             
             // Nodos
-            DefaultMutableTreeNode nodoAlien = new DefaultMutableTreeNode(alienSeleccionado);
+            DefaultMutableTreeNode nodoAlien = new DefaultMutableTreeNode((Alien) listAliensModelo.getElementAt(listAliens.getSelectedIndex()));
             DefaultMutableTreeNode nodoPlaneta = new DefaultMutableTreeNode();
-            DefaultMutableTreeNode nodoTipo = new DefaultMutableTreeNode();
+            DefaultMutableTreeNode nodoTipo = new DefaultMutableTreeNode (instanciaAlien(alienSeleccionado));
+            System.out.println(nodoTipo.toString());
             
             boolean existePlaneta = false;
             boolean existeTipo = false;
+            int pos = 0;
             
             for (Planeta p : planetas) {
                 // Buscar el planeta que contiene al alien
@@ -1115,17 +1122,17 @@ public class Principal extends javax.swing.JFrame {
                     nodoPlaneta = new DefaultMutableTreeNode(p);
                     if (raiz.getChildCount() >= 0) {
                         for (int i = 0; i < raiz.getChildCount(); i++) {
-                            DefaultMutableTreeNode planeta = (DefaultMutableTreeNode)raiz.getChildAt(i);
                             // Ver si existe un nodo de ese planeta
-                            if (planeta.toString().equals(p)) {
+                            if (nodoPlaneta.toString().equals(raiz.getChildAt(i).toString())) {
                                 existePlaneta = true;
-                                if (planeta.getChildCount() >= 0) {
-                                    for (int j = 0; j < planeta.getChildCount(); j++) {
-                                        DefaultMutableTreeNode tipo = (DefaultMutableTreeNode)planeta.getChildAt(i);
+                                if (nodoPlaneta.getChildCount() >= 0) {
+                                    for (int j = 0; j < nodoPlaneta.getChildCount(); j++) {
                                         // Ver si existe un nodo del tipo de alien
-                                        if (tipo.toString().equals(instanciaAlien(alienSeleccionado))) {
-                                            tipo.add(nodoAlien);
+                                        if (nodoTipo.toString().equals(nodoPlaneta.getChildAt(i).toString())) {
+                                            //nodoTipo = (DefaultMutableTreeNode)nodoPlaneta.getChildAt(i);
+                                            //(MutableTreeNode)nodoPlaneta.getChildAt(i).
                                             existeTipo = true;
+                                            break;
                                         }
                                     }
                                 }
@@ -1134,18 +1141,26 @@ public class Principal extends javax.swing.JFrame {
                     }
                 }
             }
-            if (!existePlaneta && !existeTipo) {
+            if (!existePlaneta) {
                 raiz.add(nodoPlaneta);
-                nodoTipo = new DefaultMutableTreeNode(instanciaAlien(alienSeleccionado));
             }
-            else if (existePlaneta && !existeTipo) {
+            if (!existeTipo) {
                 nodoTipo = new DefaultMutableTreeNode(instanciaAlien(alienSeleccionado));
+                nodoPlaneta.add(nodoTipo);
             }
-            nodoPlaneta.add(nodoTipo);
             nodoTipo.add(nodoAlien);
             arbolModelo.reload();
         }
     }//GEN-LAST:event_btnArbolActionPerformed
+
+    private void cboPlanetasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboPlanetasActionPerformed
+        DefaultListModel listAliensModel = new DefaultListModel();
+        Planeta planetaSeleccionado = (Planeta) cboPlanetas.getSelectedItem();
+        for (Alien a : planetaSeleccionado.getAliensHabitando()) {
+            listAliensModel.addElement(a);
+        }
+        listAliens.setModel(listAliensModel);
+    }//GEN-LAST:event_cboPlanetasActionPerformed
     
     public String instanciaAlien(Alien a){
         if (a instanceof Explorador) {
