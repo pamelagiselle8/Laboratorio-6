@@ -29,11 +29,24 @@ public class Principal extends javax.swing.JFrame {
         planetas.add(new Planeta("Jupiter", true, 100, -70));
         razas.add(new Raza("Patito", planetas.get(0)));
         planetas.get(0).getAliensHabitando().add(new Abduzcan(18, "James", razas.get(0), 5, true));
+        planetas.get(0).getAliensHabitando().add(new Cazador(2, "yo", razas.get(0), 30, false));
         planetas.get(0).getAliensHabitando().add(new Abduzcan(1, "Juan", razas.get(0), 10, true));
         planetas.get(1).getAliensHabitando().add(new Abduzcan(100, "Nuila", razas.get(0), 7, false));
         planetas.get(1).getAliensHabitando().add(new Abduzcan(3, "Juan2", razas.get(0), 30, true));
         initComponents();
         this.setLocationRelativeTo(null);
+    }
+    
+    public boolean validarNombre(Planeta p){
+        boolean existe = false;
+        for (Alien a : p.getAliensHabitando()) {
+            if (a.nombre.equalsIgnoreCase(txtExp.getText())) {
+                existe = true;
+                JOptionPane.showMessageDialog(this, "Ya existe una alien con ese nombre en el planeta seleccionado.", "Error", 2);
+                break;
+            }
+        }
+        return existe;
     }
 
     /**
@@ -796,8 +809,8 @@ public class Principal extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(btnArbol, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(50, 50, 50)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel7Layout.createSequentialGroup()
                         .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -931,43 +944,86 @@ public class Principal extends javax.swing.JFrame {
 
     private void btnPlanetaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlanetaActionPerformed
         boolean agua = false;
-        if (rbtnAgua.isSelected()) {
-            agua = true;
+        if (txtPlaneta.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe llenar todos los campos.", "Error", 2);
         }
-        // Try catch
-        planetas.add(new Planeta(txtPlaneta.getText(), agua, (Integer)spTam.getValue(), (Integer)spTemp.getValue()));
-        JOptionPane.showMessageDialog(this, "Planeta agregado");
+        else{
+            if (rbtnAgua.isSelected()) {
+                agua = true;
+            }
+            try{
+                planetas.add(new Planeta(txtPlaneta.getText(), agua, (Integer)spTam.getValue(), (Integer)spTemp.getValue()));
+                txtPlaneta.setText(null);
+                JOptionPane.showMessageDialog(this, "Planeta agregado exitosamente.");
+            }
+            catch (Exception e){
+                JOptionPane.showMessageDialog(this, "Datos inválidos.", "Error", 2);
+            }
+        }
     }//GEN-LAST:event_btnPlanetaActionPerformed
 
     private void btnRazaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRazaActionPerformed
-        razas.add(new Raza(txtRaza.getText(), (Planeta)cboPlaRaza.getSelectedItem()));
+        if (txtRaza.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe llenar todos los campos.", "Error", 2);
+        }
+        else{
+            if (razas.size() >= 0) {
+                boolean existe = false;
+                for (Raza r : razas) {
+                    if (txtRaza.getText().equalsIgnoreCase(r.getNombre())) {
+                        existe = true;
+                        break;
+                    }
+                }
+                if (existe) {
+                    JOptionPane.showMessageDialog(this, "Ya existe una raza con ese nombre.", "Error", 2);
+                }
+                else{
+                    razas.add(new Raza(txtRaza.getText(), (Planeta)cboPlaRaza.getSelectedItem()));
+                    txtRaza.setText(null);
+                    JOptionPane.showMessageDialog(this, "Raza agregada exitosamente.");
+                }
+            }
+        }
+        
     }//GEN-LAST:event_btnRazaActionPerformed
 
     private void btnExpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExpActionPerformed
-        boolean amenaza = false;
-        boolean added = false;
-        if (rbtnAmExp.isSelected()) {
-            amenaza = true;
+        if (txtExp.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe llenar todos los campos.", "Error", 2);
         }
-        for (Planeta p : planetas) {
-            if (p.equals(cboPlaExp.getSelectedItem())) {
-                ArrayList planetasExplorados = new ArrayList();
-                if (listPlaExp.getModel().getSize() >= 0) {
-                    for (int i = 0; i < listPlaExp.getModel().getSize(); i++) {
-                        planetasExplorados.add(listPlaExp.getModel().getElementAt(i));
+        else{
+            boolean amenaza = false;
+            boolean existe = false;
+            if (rbtnAmExp.isSelected()) {
+                amenaza = true;
+            }
+            for (Planeta p : planetas) {
+                if (p.equals(cboPlaExp.getSelectedItem())) {
+                    if (!validarNombre(p)) {
+                        ArrayList planetasExplorados = new ArrayList();
+                        if (listPlaExp.getModel().getSize() >= 0) {
+                            for (int i = 0; i < listPlaExp.getModel().getSize(); i++) {
+                                planetasExplorados.add(listPlaExp.getModel().getElementAt(i));
+                            }
+                        }
+                        try {
+                            p.getAliensHabitando().add(new Explorador(txtExp.getText(), (Raza)cboRazaExp.getSelectedItem(),
+                                                        (Integer)spEdadExp.getValue(), amenaza, planetasExplorados,
+                                                        (Planeta)cboPlaFavExp.getSelectedItem()));
+                            txtExp.setText(null);
+                            DefaultListModel listPlaExpModel = new DefaultListModel();
+                            listPlaExp.setModel(listPlaExpModel);
+                            JOptionPane.showMessageDialog(this, "Explorador agregado exitosamente.");
+                        }
+                        catch (Exception e){
+                            JOptionPane.showMessageDialog(this, "Datos inválidos.", "Error", 2);
+                        }
                     }
                 }
-                p.getAliensHabitando().add(new Explorador(txtExp.getText(), (Raza)cboRazaExp.getSelectedItem(),
-                                                (Integer)spEdadExp.getValue(), amenaza, planetasExplorados,
-                                                (Planeta)cboPlaFavExp.getSelectedItem()));
-                added = true;
-                System.out.println("Planetaaaa " + p);
-                System.out.println(p.getAliensHabitando());
             }
         }
-        if (!added) {
-            JOptionPane.showMessageDialog(this, "Algunos de los datos ingresados son inválidos.");
-        }
+        
     }//GEN-LAST:event_btnExpActionPerformed
 
     private void tabStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_tabStateChanged
@@ -1016,61 +1072,58 @@ public class Principal extends javax.swing.JFrame {
 
     private void btnCazActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCazActionPerformed
         boolean amenaza = false;
-        boolean added = false;
         if (rbtnAmCaz.isSelected()) {
             amenaza = true;
         }
         for (Planeta p : planetas) {
             if (p.equals(cboPlaCaz.getSelectedItem())) {
-                p.getAliensHabitando().add(new Cazador((Integer)spHumCaz.getValue(), txtCaz.getText(),
+                if (!validarNombre(p)) {
+                    p.getAliensHabitando().add(new Cazador((Integer)spHumCaz.getValue(), txtCaz.getText(),
                                     (Raza)cboRazaExp.getSelectedItem(), (Integer)spEdadCaz.getValue(), amenaza));
-                added = true;
+                    txtCaz.setText(null);
+                    JOptionPane.showMessageDialog(this, "Cazador agregado exitosamente.");
+                }
             }
-        }
-        if (!added) {
-            JOptionPane.showMessageDialog(this, "Algunos de los datos ingresados son inválidos.");
         }
     }//GEN-LAST:event_btnCazActionPerformed
 
     private void btnConActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConActionPerformed
         boolean amenaza = false;
-        boolean added = false;
         if (rbtnAmCon.isSelected()) {
             amenaza = true;
         }
         for (Planeta p : planetas) {
             if (p.equals(cboPlaCon.getSelectedItem())) {
-                ArrayList planetasConquistados = new ArrayList();
-                if (listPlaCon.getModel().getSize() >= 0) {
-                    for (int i = 0; i < listPlaCon.getModel().getSize(); i++) {
-                        planetasConquistados.add(listPlaCon.getModel().getElementAt(i));
+                if (!validarNombre(p)) {
+                    ArrayList planetasConquistados = new ArrayList();
+                    if (listPlaCon.getModel().getSize() >= 0) {
+                        for (int i = 0; i < listPlaCon.getModel().getSize(); i++) {
+                            planetasConquistados.add(listPlaCon.getModel().getElementAt(i));
+                        }
                     }
+                    p.getAliensHabitando().add(new Conquistador(txtCon.getText(), (Raza)cboRazaCon.getSelectedItem(),
+                                                    (Integer)spEdadCon.getValue(), amenaza, planetasConquistados));
+                    txtCon.setText(null);
+                    JOptionPane.showMessageDialog(this, "Conquistador agregado exitosamente.");
                 }
-                p.getAliensHabitando().add(new Conquistador(txtCon.getText(), (Raza)cboRazaCon.getSelectedItem(),
-                                                (Integer)spEdadCon.getValue(), amenaza, planetasConquistados));
-                added = true;
             }
-        }
-        if (!added) {
-            JOptionPane.showMessageDialog(this, "Algunos de los datos ingresados son inválidos.");
         }
     }//GEN-LAST:event_btnConActionPerformed
 
     private void btnAbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbActionPerformed
         boolean amenaza = false;
-        boolean added = false;
         if (rbtnAmAb.isSelected()) {
             amenaza = true;
         }
         for (Planeta p : planetas) {
             if (p.equals(cboPlaAb.getSelectedItem())) {
-                p.getAliensHabitando().add(new Abduzcan((Integer)spAnim.getValue(), txtAb.getText(),
+                if (!validarNombre(p)) {
+                    p.getAliensHabitando().add(new Abduzcan((Integer)spAnim.getValue(), txtAb.getText(),
                                         (Raza)cboRazaAb.getSelectedItem(), (Integer)spEdadAb.getValue(), amenaza));
-                added = true;
+                    txtAb.setText(null);
+                    JOptionPane.showMessageDialog(this, "Abduzcan agregado exitosamente.");
+                }
             }
-        }
-        if (!added) {
-            JOptionPane.showMessageDialog(this, "Algunos de los datos ingresados son inválidos.");
         }
     }//GEN-LAST:event_btnAbActionPerformed
 
@@ -1107,10 +1160,10 @@ public class Principal extends javax.swing.JFrame {
             Alien alienSeleccionado = (Alien) listAliensModelo.getElementAt(listAliens.getSelectedIndex());
             
             // Nodos
-            DefaultMutableTreeNode nodoAlien = new DefaultMutableTreeNode((Alien) listAliensModelo.getElementAt(listAliens.getSelectedIndex()));
+            //DefaultMutableTreeNode nodoAlien = new DefaultMutableTreeNode((Alien) listAliensModelo.getElementAt(listAliens.getSelectedIndex()));
+            DefaultMutableTreeNode nodoAlien = new DefaultMutableTreeNode (alienSeleccionado);
             DefaultMutableTreeNode nodoPlaneta = new DefaultMutableTreeNode();
             DefaultMutableTreeNode nodoTipo = new DefaultMutableTreeNode (instanciaAlien(alienSeleccionado));
-            System.out.println(nodoTipo.toString());
             
             boolean existePlaneta = false;
             boolean existeTipo = false;
@@ -1128,9 +1181,9 @@ public class Principal extends javax.swing.JFrame {
                                 if (nodoPlaneta.getChildCount() >= 0) {
                                     for (int j = 0; j < nodoPlaneta.getChildCount(); j++) {
                                         // Ver si existe un nodo del tipo de alien
-                                        if (nodoTipo.toString().equals(nodoPlaneta.getChildAt(i).toString())) {
-                                            //nodoTipo = (DefaultMutableTreeNode)nodoPlaneta.getChildAt(i);
-                                            //(MutableTreeNode)nodoPlaneta.getChildAt(i).
+                                        if (nodoTipo.toString().equals(nodoPlaneta.getChildAt(j).toString())) {
+                                            nodoTipo = (DefaultMutableTreeNode)nodoPlaneta.getChildAt(j);
+                                            nodoTipo.add(nodoAlien);
                                             existeTipo = true;
                                             break;
                                         }
